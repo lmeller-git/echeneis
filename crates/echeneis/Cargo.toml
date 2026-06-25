@@ -15,8 +15,6 @@ all-features = true
 
 [features]
 default = []
-std = ["alloc"]
-alloc = []
 atomic-fallback = ["portable-atomic/fallback"]
 
 [dependencies]

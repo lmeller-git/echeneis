@@ -1,6 +1,8 @@
 [workspace]
 resolver = "3"
-members = ["crates/echeneis"]
+members = [
+  "crates/*"
+]
 default-members = [
   "crates/echeneis"
 ]
@@ -13,13 +15,16 @@ description = "Testing framework for non-blocking code"
 readme = "README.md"
 license = "GPLv3"
 repository = "https://github.com/lmeller-git/echeneis"
-keywords = ["testing", "no_std", "atomic", "lock-free"]
-categories = ["algorithms", "concurrency", "no-std", "testing"]
+keywords = ["testing", "atomic", "lock-free"]
+categories = ["algorithms", "concurrency", "testing"]
 
 [workspace.dependencies]
 portable-atomic = { version = "1.13.1", default-features = false, features = ["require-cas"] }
 shuttle = "0.9.1"
 loom = "0.7"
+echeneis-core = { path = "crates/echeneis-core" }
+echeneis-sync = { path = "crates/echeneis-sync" }
+echeneis-rt = { path = "crates/echeneis-rt" }
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(loom)', 'cfg(shuttle)'] }
