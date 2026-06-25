@@ -1,0 +1,32 @@
+[package]
+name = "echeneis"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+description.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = []
+std = ["alloc"]
+alloc = []
+atomic-fallback = ["portable-atomic/fallback"]
+
+[dependencies]
+portable-atomic = { workspace = true }
+
+[target.'cfg(loom)'.dependencies]
+loom = { workspace = true }
+
+[target.'cfg(shuttle)'.dependencies]
+shuttle = { workspace = true }
+
+[lints]
+workspace = true
