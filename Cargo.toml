@@ -43,8 +43,8 @@ description = "Testing framework for non-blocking code"
 readme = "README.md"
 license = "GPLv3"
 repository = "https://github.com/lmeller-git/echeneis"
-keywords = ["testing", "atomic", "lock-free"]
-categories = ["algorithms", "concurrency", "testing"]
+keywords = ["testing", "atomic", "lokc-free"]
+categories = ["algorithms", "concurrency", "testing", "data-structures"]
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(loom)', 'cfg(shuttle)'] }
