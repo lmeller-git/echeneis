@@ -40,6 +40,14 @@ pub(crate) struct ExhaustivePairwise<I, F, D> {
     phantom: PhantomData<(I, F, D)>,
 }
 
+impl<I, F, D> ExhaustivePairwise<I, F, D> {
+    pub(crate) fn new() -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+}
+
 impl<I, F, D> ExhaustivePairwise<I, F, D>
 where
     I: Fn() -> D,
