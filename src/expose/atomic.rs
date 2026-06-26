@@ -57,7 +57,7 @@ macro_rules! atomic_int {
                 self.access(|inner| inner.swap(val, order))
             }
 
-            #[cfg(not(feature = "portable-atomics"))]
+            #[cfg(not(feature = "portable-atomic"))]
             /// Stores a value into the atomic integer if the current value is the same as the `current` value.
             #[track_caller]
             pub fn compare_and_swap(
@@ -401,7 +401,7 @@ impl AtomicBool {
         self.access(|inner| inner.swap(val, order))
     }
 
-    #[cfg(not(feature = "portable-atomics"))]
+    #[cfg(not(feature = "portable-atomic"))]
     /// Stores a value into the atomic bool if the current value is the same as the `current` value.
     #[track_caller]
     pub fn compare_and_swap(&self, current: bool, new: bool, order: Ordering) -> bool {
@@ -507,7 +507,7 @@ impl<T> AtomicPtr<T> {
         Self(crate::core::sync::atomic::AtomicPtr::new(v))
     }
 
-    #[cfg(not(feature = "portable-atomics"))]
+    #[cfg(not(feature = "portable-atomic"))]
     /// Get access to a mutable reference to the inner value.
     #[track_caller]
     pub fn get_mut(&mut self) -> &mut *mut T {
@@ -538,7 +538,7 @@ impl<T> AtomicPtr<T> {
         self.access(|inner| inner.swap(val, order))
     }
 
-    #[cfg(not(feature = "portable-atomics"))]
+    #[cfg(not(feature = "portable-atomic"))]
     /// Stores a value into the pointer if the current value is the same as the `current` value.
     #[track_caller]
     pub fn compare_and_swap(&self, current: *mut T, new: *mut T, order: Ordering) -> *mut T {

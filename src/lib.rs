@@ -64,7 +64,7 @@
 //!
 //! One way to do so easily is to use an `echeneis` cfg flag and conditionally use `echeneis` synchronization primitives for test runs by conditionally exporting them in some central module:
 //!
-//! ```rust, no_run
+//! ```ignore
 //!  #[cfg(echeneis)]
 //!  pub(crate) use echeneis::sync::atomic::AtomicUsize;
 //!
@@ -73,7 +73,7 @@
 //! ```
 //! Then, elsewhere:
 //!
-//! ```rust, no_run
+//! ```ignore
 //!  use crate::sync::AtomicUsize;
 //! ```
 //!
