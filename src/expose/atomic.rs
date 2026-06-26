@@ -596,3 +596,12 @@ impl<T> From<*mut T> for AtomicPtr<T> {
         Self::new(v)
     }
 }
+
+/// Mock implementation of `std::sync::atomic::fence`.
+#[track_caller]
+pub fn fence(order: Ordering) {
+    crate::core::rt::env::yield_current(crate::core::rt::YieldData::AtomicTransition(Some(
+        std::panic::Location::caller(),
+    )));
+    crate::core::sync::atomic::fence(order);
+}

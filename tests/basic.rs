@@ -1,6 +1,6 @@
 use std::thread::yield_now;
 
-use echeneis::atomic::{AtomicBool, AtomicUsize, Ordering};
+use echeneis::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 #[test]
 fn runs() {

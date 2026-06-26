@@ -2,20 +2,26 @@ use std::marker::PhantomData;
 
 use crate::core::schedule::{TestSchedule, linear_pairwise::ExhaustivePairwise};
 
+/// Configure a model
+#[derive(Debug)]
+#[non_exhaustive]
 pub struct ModelBuilder {
     max_steps: usize,
 }
 
 impl ModelBuilder {
+    /// Conbstructs a new `ModelBuilder`.
     pub fn new() -> Self {
         Self { max_steps: 100_000 }
     }
 
+    /// Set the maximum number of steps.
     pub fn with_steps(mut self, max_steps: usize) -> Self {
         self.max_steps = max_steps;
         self
     }
 
+    /// Check the provided model.
     pub fn check<I, F, D, C>(&mut self, init: I, preempted: F, checked: C)
     where
         I: Fn() -> D,
