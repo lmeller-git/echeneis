@@ -9,6 +9,7 @@ macro_rules! atomic_int {
         pub struct $name($crate::core::sync::atomic::$name);
 
         impl $name {
+            #[track_caller]
             fn access<R>(&self, f: impl FnOnce(&$crate::core::sync::atomic::$name) -> R) -> R {
                 $crate::core::rt::env::yield_current(
                     $crate::core::rt::YieldData::AtomicTransition(
@@ -203,6 +204,7 @@ macro_rules! atomic_float {
         pub struct $name($crate::core::sync::atomic::$name);
 
         impl $name {
+            #[track_caller]
             fn access<R>(&self, f: impl FnOnce(&$crate::core::sync::atomic::$name) -> R) -> R {
                 $crate::core::rt::env::yield_current(
                     $crate::core::rt::YieldData::AtomicTransition(Some(

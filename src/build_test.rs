@@ -8,9 +8,7 @@ pub struct ModelBuilder {
 
 impl ModelBuilder {
     pub fn new() -> Self {
-        Self {
-            max_steps: 1_000_000,
-        }
+        Self { max_steps: 100_000 }
     }
 
     pub fn with_steps(mut self, max_steps: usize) -> Self {
@@ -18,10 +16,11 @@ impl ModelBuilder {
         self
     }
 
-    pub fn check<I, F, D>(&mut self, init: I, preempted: F, checked: F)
+    pub fn check<I, F, D, C>(&mut self, init: I, preempted: F, checked: C)
     where
         I: Fn() -> D,
         F: Fn(&D) + Sync,
+        C: Fn(&D),
         D: Sync,
     {
         let model = Model {
@@ -42,17 +41,18 @@ impl Default for ModelBuilder {
     }
 }
 
-pub(crate) struct Model<I, F, D> {
+pub(crate) struct Model<I, F, D, C> {
     pub init_fn: I,
     pub preempted_fn: F,
-    pub checked_fn: F,
+    pub checked_fn: C,
     _phantom: PhantomData<D>,
 }
 
-impl<I, F, D> Model<I, F, D>
+impl<I, F, D, C> Model<I, F, D, C>
 where
     I: Fn() -> D,
     F: Fn(&D),
+    C: Fn(&D),
 {
     pub(crate) fn init_fn(&self) -> &I {
         &self.init_fn
@@ -62,7 +62,7 @@ where
         &self.preempted_fn
     }
 
-    pub(crate) fn checked_fn(&self) -> &F {
+    pub(crate) fn checked_fn(&self) -> &C {
         &self.checked_fn
     }
 }

@@ -36,11 +36,31 @@ impl Drop for WorkerSentinel {
     }
 }
 
-pub(crate) struct ExhaustivePairwise<I, F, D> {
-    phantom: PhantomData<(I, F, D)>,
+struct SchedulerGuard {
+    cvar_pair: Arc<(Mutex<Turn>, Condvar)>,
 }
 
-impl<I, F, D> ExhaustivePairwise<I, F, D> {
+impl SchedulerGuard {
+    fn new(cvar_pair: Arc<(Mutex<Turn>, Condvar)>) -> Self {
+        Self { cvar_pair }
+    }
+}
+
+impl Drop for SchedulerGuard {
+    fn drop(&mut self) {
+        if thread::panicking() {
+            let mut state = self.cvar_pair.0.lock();
+            *state = Turn::Poisoned;
+            self.cvar_pair.1.notify_all();
+        }
+    }
+}
+
+pub(crate) struct ExhaustivePairwise<I, F, D, C> {
+    phantom: PhantomData<(I, F, D, C)>,
+}
+
+impl<I, F, D, C> ExhaustivePairwise<I, F, D, C> {
     pub(crate) fn new() -> Self {
         Self {
             phantom: PhantomData,
@@ -48,15 +68,16 @@ impl<I, F, D> ExhaustivePairwise<I, F, D> {
     }
 }
 
-impl<I, F, D> ExhaustivePairwise<I, F, D>
+impl<I, F, D, C> ExhaustivePairwise<I, F, D, C>
 where
     I: Fn() -> D,
     F: Fn(&D) + Sync,
+    C: Fn(&D),
     D: Sync,
 {
     fn run_checked_once(
         &self,
-        model: &Model<I, F, D>,
+        model: &Model<I, F, D, C>,
         state: &D,
         loc: Option<&'static Location<'static>>,
     ) {
@@ -72,13 +93,14 @@ where
     }
 }
 
-impl<I, F, D> TestSchedule<I, F, D> for ExhaustivePairwise<I, F, D>
+impl<I, F, D, C> TestSchedule<I, F, D, C> for ExhaustivePairwise<I, F, D, C>
 where
     I: Fn() -> D,
     F: Fn(&D) + Sync,
+    C: Fn(&D),
     D: Sync,
 {
-    fn check_model(&mut self, model: Model<I, F, D>) {
+    fn check_model(&mut self, model: Model<I, F, D, C>) {
         let init_state = model.init_fn()();
         let preempted = model.preemptible_fn();
         let cvar_pair = Arc::new((Mutex::new(Turn::Task), Condvar::new()));
@@ -91,6 +113,8 @@ where
 
                 preempted(&init_state);
             });
+
+            let _drop_guard = SchedulerGuard::new(cvar_pair.clone());
 
             loop {
                 let mut state = cvar_pair.0.lock();
