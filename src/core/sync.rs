@@ -95,6 +95,8 @@ mod core_ {
         }
     }
 
+    #[cfg(not(feature = "portable-atomics"))]
+    pub(crate) use std::sync::atomic;
     pub(crate) use std::{
         hint,
         sync::{Arc, Condvar},
@@ -102,6 +104,7 @@ mod core_ {
         thread_local,
     };
 
+    #[cfg(feature = "portable-atomics")]
     pub(crate) use portable_atomic as atomic;
 }
 

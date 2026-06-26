@@ -15,16 +15,18 @@ all-features = true
 
 [features]
 default = []
-atomic-fallback = ["portable-atomic/fallback"]
+portable-atomics = ["dep:portable-atomic"]
+atomic-fallback = ["portable-atomics", "portable-atomic/fallback"]
+atomic-float = ["portable-atomics", "portable-atomic/float"]
 
 [dependencies]
-portable-atomic = { workspace = true }
+portable-atomic = { version = "1.13.1", default-features = false, features = ["require-cas"], optional = true }
 
 [target.'cfg(loom)'.dependencies]
-loom = { workspace = true }
+loom = "0.7"
 
 [target.'cfg(shuttle)'.dependencies]
-shuttle = { workspace = true }
+shuttle = "0.9.1"
 
 [lints]
 workspace = true
@@ -43,14 +45,6 @@ license = "GPLv3"
 repository = "https://github.com/lmeller-git/echeneis"
 keywords = ["testing", "atomic", "lock-free"]
 categories = ["algorithms", "concurrency", "testing"]
-
-[workspace.dependencies]
-portable-atomic = { version = "1.13.1", default-features = false, features = ["require-cas"] }
-shuttle = "0.9.1"
-loom = "0.7"
-echeneis-core = { path = "crates/echeneis-core" }
-echeneis-sync = { path = "crates/echeneis-sync" }
-echeneis-rt = { path = "crates/echeneis-rt" }
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(loom)', 'cfg(shuttle)'] }
@@ -116,6 +110,5 @@ string_add_assign = "warn"
 string_lit_as_bytes = "warn"
 todo = "warn"
 trait_duplication_in_bounds = "warn"
-uninlined_format_args = "warn"
 verbose_file_reads = "warn"
 zero_sized_map_values = "warn"

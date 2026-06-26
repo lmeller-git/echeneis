@@ -1,35 +1,7 @@
 use crate::core::{
     rt::{TaskHandle, YieldData},
-    sync::{
-        Arc,
-        Condvar,
-        Mutex,
-        thread::{self, Thread},
-    },
+    sync::{Arc, Condvar, Mutex},
 };
-
-pub(crate) struct ThreadTaskHandle {
-    scheduler: Thread,
-    data: Arc<Mutex<Option<YieldData>>>,
-}
-
-impl ThreadTaskHandle {
-    pub(crate) fn new(scheduler_thread: Thread, data: Arc<Mutex<Option<YieldData>>>) -> Self {
-        Self {
-            scheduler: scheduler_thread,
-            data,
-        }
-    }
-}
-
-impl TaskHandle for ThreadTaskHandle {
-    fn yield_now(&mut self, payload: YieldData) {
-        self.data.lock().replace(payload);
-        self.scheduler.unpark();
-
-        thread::park();
-    }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Turn {
@@ -37,17 +9,17 @@ pub(crate) enum Turn {
     Task,
 }
 
-pub(crate) struct ThreadTaskHandle_ {
+pub(crate) struct ThreadTaskHandle {
     cvar_pair: Arc<(Mutex<Turn>, Condvar)>,
 }
 
-impl ThreadTaskHandle_ {
+impl ThreadTaskHandle {
     pub(crate) fn new(cvar_pair: Arc<(Mutex<Turn>, Condvar)>) -> Self {
         Self { cvar_pair }
     }
 }
 
-impl TaskHandle for ThreadTaskHandle_ {
+impl TaskHandle for ThreadTaskHandle {
     fn yield_now(&mut self, payload: YieldData) {
         // at this point state shouldbe Turn::Task.
         // We want to giove a turn to the scheduler and wait until its our turn again

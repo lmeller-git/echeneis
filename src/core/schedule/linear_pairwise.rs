@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use std::{marker::PhantomData, panic::Location};
 
 use crate::{
     build_test::Model,
@@ -6,7 +6,7 @@ use crate::{
         rt::{
             CheckedTaskHandle,
             env::CURRENT_TASK,
-            thread::{ThreadTaskHandle_, Turn},
+            thread::{ThreadTaskHandle, Turn},
         },
         schedule::TestSchedule,
         sync::{Arc, Condvar, Mutex, thread},
@@ -54,9 +54,17 @@ where
     F: Fn(&D) + Sync,
     D: Sync,
 {
-    fn run_checked_once(&self, model: &Model<I, F, D>, state: &D) {
-        let state_checker = Box::new(CheckedTaskHandle::new(1_000_000));
-        CURRENT_TASK.with_borrow_mut(|cell| cell.replace(state_checker));
+    fn run_checked_once(
+        &self,
+        model: &Model<I, F, D>,
+        state: &D,
+        loc: Option<&'static Location<'static>>,
+    ) {
+        let mut state_checker = CheckedTaskHandle::new(1_000_000);
+        if let Some(loc) = loc {
+            state_checker = state_checker.with_preempted_loc(loc);
+        }
+        CURRENT_TASK.with_borrow_mut(|cell| cell.replace(Box::new(state_checker)));
 
         model.checked_fn()(state);
 
@@ -78,7 +86,7 @@ where
         thread::scope(|s| {
             let _preempted = s.spawn(|| {
                 let _drop_guard = WorkerSentinel::new(cvar_pair.clone());
-                let preempted_task_thread = Box::new(ThreadTaskHandle_::new(cvar_pair.clone()));
+                let preempted_task_thread = Box::new(ThreadTaskHandle::new(cvar_pair.clone()));
                 CURRENT_TASK.with_borrow_mut(|cell| cell.replace(preempted_task_thread));
 
                 preempted(&init_state);
@@ -100,16 +108,16 @@ where
                 drop(state);
 
                 match reason {
-                    crate::core::rt::YieldData::AtomicTransition => {
+                    crate::core::rt::YieldData::AtomicTransition(loc) => {
                         // run checked once and wait for the next state
-                        self.run_checked_once(&model, &init_state);
+                        self.run_checked_once(&model, &init_state, loc);
                     }
                     crate::core::rt::YieldData::Terminated => {
                         panic!("Failed")
                     }
                     crate::core::rt::YieldData::Complete => {
                         // run checked one more time, then end
-                        self.run_checked_once(&model, &init_state);
+                        self.run_checked_once(&model, &init_state, None);
                         break;
                     }
                 }

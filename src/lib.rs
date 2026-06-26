@@ -2,9 +2,8 @@ pub(crate) mod build_test;
 pub(crate) mod core;
 mod expose;
 
-pub use expose::*;
-
 pub use build_test::ModelBuilder;
+pub use expose::*;
 
 pub fn check_pairwise<I, F, D>(init_fn: I, preempt: F, check: F)
 where
