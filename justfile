@@ -7,8 +7,8 @@ test:
     cargo test --locked --no-default-features --all-targets
     cargo test --locked --no-default-features --doc
     cargo +nightly miri test --locked --all-features
-    LOOM_MAX_PREEMPTIONS=2 RUSTFLAGS="--cfg loom" cargo test --locked --lib --features dynamic
-    RUSTFLAGS="--cfg shuttle" cargo test --locked --lib --features dynamic
+    LOOM_MAX_PREEMPTIONS=2 RUSTFLAGS="--cfg loom" cargo test --locked --lib
+    RUSTFLAGS="--cfg shuttle" cargo test --locked --lib
 
 lint:
     cargo +nightly fmt --all -- --check
@@ -17,4 +17,3 @@ lint:
 check:
     cargo +nightly docs-rs
     cargo hack --feature-powerset check
-    cargo semver-checks

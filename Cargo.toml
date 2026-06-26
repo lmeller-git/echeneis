@@ -1,11 +1,37 @@
+[package]
+name = "echeneis"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+description.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = []
+atomic-fallback = ["portable-atomic/fallback"]
+
+[dependencies]
+portable-atomic = { workspace = true }
+
+[target.'cfg(loom)'.dependencies]
+loom = { workspace = true }
+
+[target.'cfg(shuttle)'.dependencies]
+shuttle = { workspace = true }
+
+[lints]
+workspace = true
+
 [workspace]
 resolver = "3"
-members = [
-  "crates/*"
-]
-default-members = [
-  "crates/echeneis"
-]
+members = []
 
 [workspace.package]
 edition = "2024"
@@ -82,7 +108,7 @@ ref_option_ref = "warn"
 rest_pat_in_fully_bound_structs = "warn"
 result_large_err = "allow"
 same_functions_in_if_condition = "warn"
-self_named_module_files = "warn"
+# self_named_module_files = "warn" # try how it feels in this project
 semicolon_if_nothing_returned = "warn"
 str_to_string = "warn"
 string_add = "warn"
