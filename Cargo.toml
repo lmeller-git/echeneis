@@ -15,9 +15,9 @@ all-features = true
 
 [features]
 default = []
-portable-atomics = ["dep:portable-atomic"]
-atomic-fallback = ["portable-atomics", "portable-atomic/fallback"]
-atomic-float = ["portable-atomics", "portable-atomic/float"]
+portable-atomic = ["dep:portable-atomic"]
+atomic-fallback = ["portable-atomic", "portable-atomic/fallback"]
+atomic-float = ["portable-atomic", "portable-atomic/float"]
 
 [dependencies]
 portable-atomic = { version = "1.13.1", default-features = false, features = ["require-cas"], optional = true }
@@ -39,12 +39,12 @@ members = []
 edition = "2024"
 authors = ["Louis Meller louis.meller@icloud.com"]
 description = "Testing framework for non-blocking code"
-# documentation = "TODO"
+documentation = "https://docs.rs/echeneis"
 readme = "README.md"
-license = "GPLv3"
+license = "GPL-3.0"
 repository = "https://github.com/lmeller-git/echeneis"
 keywords = ["testing", "atomic", "lokc-free"]
-categories = ["algorithms", "concurrency", "testing", "data-structures"]
+categories = ["algorithms", "concurrency", "data-structures"]
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(loom)', 'cfg(shuttle)'] }

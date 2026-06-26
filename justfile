@@ -15,3 +15,4 @@ lint:
 check:
     cargo +nightly docs-rs
     cargo hack --feature-powerset check
+    cargo semver-checks

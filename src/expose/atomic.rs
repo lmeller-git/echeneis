@@ -3,7 +3,7 @@ pub use crate::core::sync::atomic::Ordering;
 macro_rules! atomic_int {
     ($name: ident, $int_type: ident) => {
         #[doc = concat!(
-            " Mock implementation of `portable_atomic:: or `std::sync::atomic::`", stringify!($name)
+            " Mock implementation of `portable_atomic::` or `std::sync::atomic::` `", stringify!($name), "`"
         )]
         #[derive(Debug)]
         pub struct $name($crate::core::sync::atomic::$name);
@@ -198,7 +198,7 @@ atomic_int!(AtomicI128, i128);
 macro_rules! atomic_float {
     ($name: ident, $float_type: ident) => {
         #[doc = concat!(
-                                    " Mock implementation of `portable_atomic::", stringify!($name)
+                                    " Mock implementation of `portable_atomic::", stringify!($name), "`"
                                 )]
         #[derive(Debug)]
         pub struct $name($crate::core::sync::atomic::$name);

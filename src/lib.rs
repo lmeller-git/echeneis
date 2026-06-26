@@ -2,13 +2,18 @@
 #![deny(clippy::missing_safety_doc, clippy::undocumented_unsafe_blocks)]
 #![warn(unsafe_op_in_unsafe_fn)]
 
-//! Echeneis is a deterministic model-checking tool designed specifically to detect blocking code in concurrent Rust programs. It systematically explores execution paths to verify whether one thread could block another.
+//! Echeneis is a controlled model-checking tool designed specifically to detect blocking code in concurrent Rust programs. It systematically explores execution paths to verify whether one thread could block another.
 //!
 //! ## Why echeneis?
 //!
-//! Many concurrent algorithms expect a specific sequence of operations to complete without interruption. If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
-//! Echeneis isolates these bugs by taking control over thread execution, systematically preempting the tested code at every atomic boundary to ensure the tested implementation guarantees progress and never blocks.
-//! Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of test models.
+//! Many concurrent algorithms expect a specific sequence of operations to complete without interruption.
+//! If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
+//!
+//! Exhaustive model checkers like `loom` may face runtime problems on complex systems in practice, limiting there use for exhaustivce checking of these systems somewhat.
+//! `Echeneis` tries to solve this by focusing only on a small subset of bugs (pairwise blocks) and searchign for them by checking if some thread blocks given another is preempted at some point.
+//! This crate also makes no assumption about the memory model, delegating this layer to native atomic implementations.
+//!
+//! Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of concurrent models.
 //!
 //! ## Quick Start
 //!
@@ -52,10 +57,41 @@
 //! RUSTFLAGS="--cfg echeneis" cargo test --test blocking_concurrent
 //! ```
 //!
+//! ## Writing tests
+//!
+//! Echeneis intrusively redirects all calls to synchronization primitives in order to check preemption permutations systematically.
+//! This means that all tested functionality should use the synchronization primitives exported in this crate.
+//!
+//! One way to do so easily is to use an `echeneis` cfg flag and conditionally use `echeneis` synchronization primitives for test runs by conditionally exporting them in some central module:
+//!
+//! ```rust, no_run
+//!  #[cfg(echeneis)]
+//!  pub(crate) use echeneis::sync::atomic::AtomicUsize;
+//!
+//!  #[cfg(not(echeneis))]
+//!  pub(crate) use std::sync::atomic::AtomicUsize;
+//! ```
+//! Then, elsewhere:
+//!
+//! ```rust, no_run
+//!  use crate::sync::AtomicUsize;
+//! ```
+//!
 //! ## Limitations
 //!
 //! Echeneis currently only supports `check_pairwise`. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
-//! Further, `check_pairwise` currently does not reistantiate the init state createde by `init_fn`. If the code in `preempt` or `checked` mutate the state in a way that changes the execution, blocking code-paths may be missed or falsely detected.
+//! Further, `check_pairwise` currently does not reistantiate the init state created by `init_fn`. If the code in `preempt` or `checked` mutate the state in a way that changes the execution, blocking code-paths may be missed or falsely detected.
+//!
+//! ## Feature Flags
+//!
+//! - `portable-atomic`: Uses the `portable-atomic` crate as backend for atomics
+//!
+//! - `atomic-float`: Enables `portable-atomic` `float` feature and exposes shims for atomic floats.
+//!
+//! - `atomic-fallback`: Uses `portable-atomic` `fallback` feature for atomics if necessary.
+//!
+//! - `default`:
+//!
 
 pub(crate) mod build_test;
 pub(crate) mod core;
