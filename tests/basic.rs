@@ -7,6 +7,7 @@ fn runs() {
     echeneis::check_pairwise(|| {}, |_| {}, |_| {});
 }
 
+#[cfg(not(miri))]
 #[test]
 fn runs_atomic() {
     echeneis::check_pairwise(
@@ -28,6 +29,7 @@ fn runs_atomic() {
     );
 }
 
+#[cfg(not(miri))]
 #[test]
 #[should_panic]
 fn kills() {
@@ -41,6 +43,7 @@ fn kills() {
     );
 }
 
+#[cfg(not(miri))]
 #[test]
 #[should_panic]
 fn kills2() {
@@ -51,6 +54,7 @@ fn kills2() {
     );
 }
 
+#[cfg(not(miri))]
 #[test]
 #[should_panic]
 fn kills_block() {
