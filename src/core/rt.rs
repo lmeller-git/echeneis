@@ -2,7 +2,6 @@ use std::panic::Location;
 
 pub(crate) mod coroutine;
 pub(crate) mod env;
-pub(crate) mod thread;
 
 pub(crate) trait TaskHandle {
     fn yield_now(&mut self, payload: YieldData);
@@ -11,12 +10,15 @@ pub(crate) trait TaskHandle {
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub(crate) enum YieldData {
     AtomicTransition(Option<&'static Location<'static>>),
+    #[allow(unused)]
     Complete,
+    #[allow(unused)]
     Terminated,
 }
 
+#[derive(Clone)]
 pub(crate) struct CheckedTaskHandle {
-    current_steps: usize,
+    pub current_steps: usize,
     max_steps: usize,
     preempted_location: Option<&'static Location<'static>>,
 }

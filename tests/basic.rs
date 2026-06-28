@@ -4,7 +4,7 @@ use echeneis::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 #[test]
 fn runs() {
-    echeneis::check_pairwise(|| {}, |_| {}, |_| {});
+    echeneis::check_pairwise(|| {}, |_| {}, |_| std::ops::ControlFlow::Continue(()));
 }
 
 #[cfg(not(miri))]
@@ -25,6 +25,8 @@ fn runs_atomic() {
                 assert!(val == v2);
                 yield_now();
             }
+
+            std::ops::ControlFlow::Continue(())
         },
     );
 }
@@ -32,7 +34,7 @@ fn runs_atomic() {
 #[test]
 #[should_panic]
 fn panics() {
-    echeneis::check_pairwise(|| {}, |_| panic!(), |_| {});
+    echeneis::check_pairwise(|| {}, |_| panic!(), |_| std::ops::ControlFlow::Continue(()));
 }
 
 #[test]
@@ -62,7 +64,10 @@ fn kills2() {
     echeneis::check_pairwise(
         || AtomicBool::new(false),
         |_| {},
-        |v| while !v.load(Ordering::Acquire) {},
+        |v| {
+            while !v.load(Ordering::Acquire) {}
+            std::ops::ControlFlow::Continue(())
+        },
     );
 }
 
@@ -83,6 +88,7 @@ fn kills_block() {
         },
         |(b, _)| {
             while !b.load(Ordering::Acquire) {}
+            std::ops::ControlFlow::Continue(())
         },
     );
 }

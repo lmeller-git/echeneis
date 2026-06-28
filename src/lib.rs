@@ -97,20 +97,52 @@ pub(crate) mod build_test;
 pub(crate) mod core;
 mod expose;
 
+use std::ops::ControlFlow;
+
 pub use build_test::ModelBuilder;
 pub use expose::*;
 
 /// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
 ///
-/// The state created by `init_fn` may be reused multiple times. This is akin to retrying `check` on the state created by `init_fn` while `preempt` runs once.
+/// May replay the closure `preempt` N times.
 ///
 /// Uses a default ModelBuilder.
 pub fn check_pairwise<I, F, D, C>(init_fn: I, preempt: F, check: C)
 where
     I: Fn() -> D,
     F: Fn(&D) + Sync,
-    C: Fn(&D),
+    C: Fn(&D) -> ControlFlow<()>,
     D: Sync,
 {
-    ModelBuilder::new().check(init_fn, preempt, check);
+    ModelBuilder::new().check_pairwise(init_fn, preempt, check);
+}
+
+/// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+///
+/// Clones state `D` at each preemption point to allow running `preempt` only once.
+///
+/// Uses a default ModelBuilder.
+pub fn check_pairwise_clone<I, F, D, C>(init_fn: I, preempt: F, check: C)
+where
+    I: Fn() -> D,
+    F: Fn(&D) + Sync,
+    C: Fn(&D) -> ControlFlow<()>,
+    D: Sync + Clone,
+{
+    ModelBuilder::new().check_pairwise_clone(init_fn, preempt, check);
+}
+
+/// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+///
+/// The state created by `init_fn` may be reused multiple times. This is akin to retrying `check` on the state created by `init_fn` while `preempt` runs once.
+///
+/// Uses a default ModelBuilder.
+pub fn check_retry<I, F, D, C>(init_fn: I, preempt: F, check: C)
+where
+    I: Fn() -> D,
+    F: Fn(&D) + Sync,
+    C: Fn(&D) -> ControlFlow<()>,
+    D: Sync,
+{
+    ModelBuilder::new().check_retry(init_fn, preempt, check);
 }
