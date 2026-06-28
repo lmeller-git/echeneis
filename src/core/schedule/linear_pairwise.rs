@@ -71,9 +71,8 @@ impl<I, F, D, C> ExhaustivePairwise<I, F, D, C> {
 impl<I, F, D, C> ExhaustivePairwise<I, F, D, C>
 where
     I: Fn() -> D,
-    F: Fn(&D) + Sync,
+    F: Fn(&D),
     C: Fn(&D),
-    D: Sync,
 {
     fn run_checked_once(
         &self,

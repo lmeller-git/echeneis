@@ -91,7 +91,7 @@ macro_rules! atomic_int {
                 success: $crate::core::sync::atomic::Ordering,
                 failure: $crate::core::sync::atomic::Ordering,
             ) -> Result<$int_type, $int_type> {
-                self.compare_exchange(current, new, success, failure)
+                self.access(|inner| inner.compare_exchange_weak(current, new, success, failure))
             }
 
             /// Adds to the current value, returning the previous value.
@@ -277,7 +277,7 @@ macro_rules! atomic_float {
                 success: $crate::core::sync::atomic::Ordering,
                 failure: $crate::core::sync::atomic::Ordering,
             ) -> Result<$float_type, $float_type> {
-                self.compare_exchange(current, new, success, failure)
+                self.access(|inner| inner.compare_exchange_weak(current, new, success, failure))
             }
 
             /// Adds to the current value, returning the previous value.
@@ -430,7 +430,7 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        self.compare_exchange(current, new, success, failure)
+        self.access(|inner| inner.compare_exchange_weak(current, new, success, failure))
     }
 
     /// Logical "and" with the current value.
@@ -567,7 +567,7 @@ impl<T> AtomicPtr<T> {
         success: Ordering,
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
-        self.compare_exchange(current, new, success, failure)
+        self.access(|inner| inner.compare_exchange(current, new, success, failure))
     }
 
     /// Fetches the value, and applies a function to it that returns an optional new value.
