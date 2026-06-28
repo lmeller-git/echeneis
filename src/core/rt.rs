@@ -1,5 +1,6 @@
 use std::panic::Location;
 
+pub(crate) mod coroutine;
 pub(crate) mod env;
 pub(crate) mod thread;
 

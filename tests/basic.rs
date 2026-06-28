@@ -29,6 +29,18 @@ fn runs_atomic() {
     );
 }
 
+#[test]
+#[should_panic]
+fn panics() {
+    echeneis::check_pairwise(|| {}, |_| panic!(), |_| {});
+}
+
+#[test]
+#[should_panic]
+fn panics2() {
+    echeneis::check_pairwise(|| {}, |_| {}, |_| panic!());
+}
+
 #[cfg(not(miri))]
 #[test]
 #[should_panic]

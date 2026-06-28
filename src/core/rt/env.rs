@@ -1,15 +1,17 @@
-use std::cell::RefCell;
+use std::cell::Cell;
 
 use crate::core::rt::TaskHandle;
 
 crate::core::sync::thread_local! {
-    pub(crate) static CURRENT_TASK: RefCell<Option<Box<dyn TaskHandle>>> = const { RefCell::new(None) };
+    pub(crate) static CURRENT_TASK: Cell<Option<Box<dyn TaskHandle>>> = const { Cell::new(None) };
 }
 
 pub(crate) fn yield_current(payload: super::YieldData) {
-    CURRENT_TASK.with_borrow_mut(|task| {
-        if let Some(task) = task {
-            task.yield_now(payload);
-        }
-    });
+    let mut current = CURRENT_TASK.take();
+
+    if let Some(task) = &mut current {
+        task.yield_now(payload);
+    }
+
+    CURRENT_TASK.set(current);
 }

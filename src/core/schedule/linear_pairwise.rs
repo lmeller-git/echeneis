@@ -1,10 +1,15 @@
-use std::{marker::PhantomData, panic::Location};
+use std::{cell::RefCell, marker::PhantomData, ops::ControlFlow, panic::Location};
+
+use corosensei::{Coroutine, ScopedCoroutine, stack::DefaultStack};
 
 use crate::{
     build_test::Model,
     core::{
         rt::{
             CheckedTaskHandle,
+            TaskHandle,
+            YieldData,
+            coroutine::{CoroTaskHandle, transmute_lt},
             env::CURRENT_TASK,
             thread::{ThreadTaskHandle, Turn},
         },
@@ -84,11 +89,13 @@ where
         if let Some(loc) = loc {
             state_checker = state_checker.with_preempted_loc(loc);
         }
-        CURRENT_TASK.with_borrow_mut(|cell| cell.replace(Box::new(state_checker)));
+
+        let current = CURRENT_TASK.take();
+        CURRENT_TASK.set(Some(Box::new(state_checker)));
 
         model.checked_fn()(state);
 
-        CURRENT_TASK.with_borrow_mut(|cell| cell.take());
+        CURRENT_TASK.set(current);
     }
 }
 
@@ -108,7 +115,7 @@ where
             let _preempted = s.spawn(|| {
                 let _drop_guard = WorkerSentinel::new(cvar_pair.clone());
                 let preempted_task_thread = Box::new(ThreadTaskHandle::new(cvar_pair.clone()));
-                CURRENT_TASK.with_borrow_mut(|cell| cell.replace(preempted_task_thread));
+                CURRENT_TASK.set(Some(preempted_task_thread));
 
                 preempted(&init_state);
             });
@@ -149,5 +156,103 @@ where
                 cvar_pair.1.notify_all();
             }
         });
+    }
+}
+
+struct ClearTaskGuard;
+impl Drop for ClearTaskGuard {
+    fn drop(&mut self) {
+        CURRENT_TASK.set(None);
+    }
+}
+
+pub(crate) struct ExhaustivePairwise_<I, F, D, C> {
+    phantom: PhantomData<(I, F, D, C)>,
+}
+
+impl<I, F, D, C> ExhaustivePairwise_<I, F, D, C> {
+    pub(crate) fn new() -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl<I, F, D, C> ExhaustivePairwise_<I, F, D, C>
+where
+    I: Fn() -> D,
+    F: Fn(&D),
+    C: Fn(&D),
+{
+    fn run_checked_once(
+        &self,
+        model: &Model<I, F, D, C>,
+        state: &D,
+        loc: Option<&'static Location<'static>>,
+    ) {
+        let mut state_checker = CheckedTaskHandle::new(1_000_000);
+        let _guard = ClearTaskGuard;
+        if let Some(loc) = loc {
+            state_checker = state_checker.with_preempted_loc(loc);
+        }
+
+        let current = CURRENT_TASK.take();
+        CURRENT_TASK.set(Some(Box::new(state_checker)));
+
+        model.checked_fn()(state);
+
+        CURRENT_TASK.set(current);
+    }
+}
+
+impl<I, F, D, C> TestSchedule<I, F, D, C> for ExhaustivePairwise_<I, F, D, C>
+where
+    I: Fn() -> D,
+    F: Fn(&D),
+    C: Fn(&D),
+{
+    fn check_model(&mut self, model: Model<I, F, D, C>) {
+        let preempted = model.preemptible_fn();
+        let mut stack = DefaultStack::default();
+        let mut yield_counter = 0;
+
+        loop {
+            let init_state = model.init_fn()();
+            let c = ScopedCoroutine::with_stack(stack, |yielder, input| {
+                let _guard = ClearTaskGuard;
+                let handle = Box::new(CoroTaskHandle::new(yielder, input));
+                // Safety:
+                // we will drop it before return/on panic
+                CURRENT_TASK.set(Some(unsafe { transmute_lt(handle) }));
+                preempted(&init_state);
+                CURRENT_TASK.set(None);
+            });
+
+            if c.scope(|mut coro| match coro.resume(yield_counter) {
+                corosensei::CoroutineResult::Yield(result) => match result {
+                    YieldData::AtomicTransition(loc) => {
+                        yield_counter += 1;
+                        self.run_checked_once(&model, &init_state, loc);
+                        coro.force_unwind();
+                        ControlFlow::Continue::<()>(())
+                    }
+                    YieldData::Complete => {
+                        self.run_checked_once(&model, &init_state, None);
+                        ControlFlow::Break(())
+                    }
+                    YieldData::Terminated => ControlFlow::Break(()),
+                },
+                corosensei::CoroutineResult::Return(_) => {
+                    self.run_checked_once(&model, &init_state, None);
+                    ControlFlow::Break(())
+                }
+            })
+            .is_break()
+            {
+                break;
+            };
+
+            stack = DefaultStack::default();
+        }
     }
 }

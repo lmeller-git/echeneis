@@ -74,6 +74,7 @@ dependencies = [
 name = "echeneis"
 version = "0.1.1"
 dependencies = [
+ "corosensei",
  "loom",
  "portable-atomic",
  "shuttle",

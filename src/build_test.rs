@@ -1,6 +1,9 @@
 use std::marker::PhantomData;
 
-use crate::core::schedule::{TestSchedule, linear_pairwise::ExhaustivePairwise};
+use crate::core::schedule::{
+    TestSchedule,
+    linear_pairwise::{ExhaustivePairwise, ExhaustivePairwise_},
+};
 
 /// Configure a model
 #[derive(Debug)]

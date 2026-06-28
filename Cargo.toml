@@ -20,6 +20,7 @@ atomic-fallback = ["portable-atomic", "portable-atomic/fallback"]
 atomic-float = ["portable-atomic", "portable-atomic/float"]
 
 [dependencies]
+corosensei = "0.3.4"
 portable-atomic = { version = "1.13.1", default-features = false, features = ["require-cas"], optional = true }
 
 [target.'cfg(loom)'.dependencies]
