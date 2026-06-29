@@ -80,7 +80,6 @@
 //! ## Limitations
 //!
 //! Echeneis currently only supports `check_pairwise`. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
-//! Further, `check_pairwise` currently does not reistantiate the init state created by `init_fn`. If the code in `preempt` or `checked` mutate the state in a way that changes the execution, blocking code-paths may be missed or falsely detected.
 //!
 //! ## Feature Flags
 //!

@@ -18,7 +18,7 @@ Many concurrent algorithms expect a specific sequence of operations to complete 
 If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
 
 Exhaustive model checkers like `loom` may face runtime problems on complex systems in practice, limiting there use for exhaustivce checking of these systems somewhat.
-`Echeneis` tries to solve this by foxusing only on a small subset of bugs (pairwise blocks) and searchign for them by checking if some thread blocks given another is preempted at some point.
+`Echeneis` tries to solve this by focusing only on a small subset of bugs (pairwise blocks) and searchign for them by checking if some thread blocks given another is preempted at some point.
 This crate also makes no assumption about the memory model, delegating this layer to native atomic implementations.
 
 Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of concurrent models.
@@ -72,7 +72,7 @@ This means that all tested functionality should use the synchronization primitiv
 
 One way to do so easily is to use an `echeneis` cfg flag and conditionally use `echeneis` synchronization primitives for test runs by conditionally exporting them in some central module:
 
-```rust, no_run
+```rust
  #[cfg(echeneis)]
  pub(crate) use echeneis::sync::atomic::AtomicUsize;
 
@@ -81,14 +81,13 @@ One way to do so easily is to use an `echeneis` cfg flag and conditionally use `
 ```
 Then, elsewhere:
 
-```rust, no_run
+```rust
  use crate::sync::AtomicUsize;
 ```
 
 ### Limitations
 
 Echeneis currently only supports `check_pairwise`. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
-Further, `check_pairwise` currently does not reistantiate the init state created by `init_fn`. If the code in `preempt` or `checked` mutate the state in a way that changes the execution, blocking code-paths may be missed or falsely detected.
 
 ### Feature Flags
 
