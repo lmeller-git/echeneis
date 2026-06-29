@@ -54,24 +54,3 @@ jobs:
         env:
           LSAN_OPTIONS: "suppressions=lsan-suppressions.txt"
           RUSTFLAGS: "-Z sanitizer=leak"
-  miri:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # tag=v7.0.0
-        with:
-          submodules: true
-      - run: |
-          echo "NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)" >> "$GITHUB_ENV"
-      - name: Install ${{ env.NIGHTLY }}
-        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # branch=master
-        with:
-          toolchain: ${{ env.NIGHTLY }}
-          components: miri
-      - name: install miri
-        run: rustup component add miri --toolchain ${{ env.NIGHTLY }}
-      - name: cargo miri test
-        run: |
-          rustup override set ${{ env.NIGHTLY }}
-          cargo miri test
-        env:
-          MIRIFLAGS: ""

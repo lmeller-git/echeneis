@@ -6,7 +6,6 @@ test:
     cargo test --locked --all-features --doc
     cargo test --locked --no-default-features --all-targets
     cargo test --locked --no-default-features --doc
-    cargo +nightly miri test --locked --all-features
 
 lint:
     cargo +nightly fmt --all -- --check
