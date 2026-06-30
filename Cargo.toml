@@ -1,6 +1,6 @@
 [package]
 name = "echeneis"
-version = "0.1.1"
+version = "0.1.2"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -44,7 +44,7 @@ documentation = "https://docs.rs/echeneis"
 readme = "README.md"
 license = "GPL-3.0"
 repository = "https://github.com/lmeller-git/echeneis"
-keywords = ["testing", "atomic", "lock-free"]
+keywords = ["testing", "atomic", "lock-free", "obstruction-free"]
 categories = ["algorithms", "concurrency", "data-structures"]
 
 [workspace.lints.rust]

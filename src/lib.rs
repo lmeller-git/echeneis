@@ -9,9 +9,8 @@
 //! Many concurrent algorithms expect a specific sequence of operations to complete without interruption.
 //! If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
 //!
-//! Exhaustive model checkers like `loom` may face runtime problems on complex systems in practice, limiting there use for exhaustivce checking of these systems somewhat.
-//! `Echeneis` tries to solve this by focusing only on a small subset of bugs (pairwise blocks) and searchign for them by checking if some thread blocks given another is preempted at some point.
-//! This crate also makes no assumption about the memory model, delegating this layer to native atomic implementations.
+//! In particular, echeneis tests for `obstruction-freedom`.
+//! This crate makes no assumption about the memory model, delegating this layer to native atomic implementations.
 //!
 //! Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of concurrent models.
 //!
