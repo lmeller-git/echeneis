@@ -72,7 +72,7 @@ dependencies = [
 
 [[package]]
 name = "echeneis"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "corosensei",
  "loom",

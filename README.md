@@ -17,7 +17,7 @@ Echeneis is a controlled model-checking tool designed specifically to detect blo
 Many concurrent algorithms expect a specific sequence of operations to complete without interruption.
 If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
 
-In particular, echeneis tests for `obstruction-freedom`.
+In particular, echeneis tests for `obstruction-freedom` of the checked function at each preemption point of the preempted function.
 This crate makes no assumption about the memory model, delegating this layer to native atomic implementations.
 
 Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of concurrent models.

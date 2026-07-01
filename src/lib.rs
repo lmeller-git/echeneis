@@ -9,7 +9,7 @@
 //! Many concurrent algorithms expect a specific sequence of operations to complete without interruption.
 //! If a thread is preempted at a critical operation, such as right after updating a state flag, it can inadvertently leave the rest of the system completely stalled.
 //!
-//! In particular, echeneis tests for `obstruction-freedom`.
+//! In particular, echeneis tests for `obstruction-freedom` of the checked function at each preemption point of the preempted function.
 //! This crate makes no assumption about the memory model, delegating this layer to native atomic implementations.
 //!
 //! Focusing on pairwise blocking interactions allows fast and simple checking with informative errors of concurrent models.
@@ -100,7 +100,8 @@ use std::ops::ControlFlow;
 pub use build_test::ModelBuilder;
 pub use expose::*;
 
-/// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Exhaustively checks whether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Reinitializes state at each preemption point and restarts `preempt`.
 ///
 /// May replay the closure `preempt` N times.
 ///
@@ -115,7 +116,8 @@ where
     ModelBuilder::new().check_pairwise(init_fn, preempt, check);
 }
 
-/// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Exhaustively checks whether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Clones state instead of reinitializing it.
 ///
 /// Clones state `D` at each preemption point to allow running `preempt` only once.
 ///
@@ -130,7 +132,8 @@ where
     ModelBuilder::new().check_pairwise_clone(init_fn, preempt, check);
 }
 
-/// Exhaustively checks wether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Exhaustively checks whether closure passed as `check` blocks on any (atomic) operation in `preempt`.
+/// Retries `check` at each preemption point of `check` until succesfull.
 ///
 /// The state created by `init_fn` may be reused multiple times. This is akin to retrying `check` on the state created by `init_fn` while `preempt` runs once.
 ///
