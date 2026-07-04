@@ -1,0 +1,20 @@
+[package]
+name = "echeneis-rt"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+readme.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+echeneis-core = { workspace = true }
+echeneis-schedule = { workspace = true }
+corosensei = "0.3.4"
+
+[lints]
+workspace = true

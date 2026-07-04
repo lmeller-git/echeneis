@@ -1,0 +1,36 @@
+[package]
+name = "echeneis"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+readme.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = []
+# portable-atomic = ["dep:portable-atomic"]
+# atomic-fallback = ["portable-atomic", "portable-atomic/fallback"]
+# atomic-float = ["portable-atomic", "portable-atomic/float"]
+
+[dependencies]
+echeneis-schedule = { workspace = true }
+echeneis-core = { workspace = true }
+echeneis-emit = { workspace = true }
+echeneis-rt = { workspace = true }
+
+[target.'cfg(loom)'.dependencies]
+loom = "0.7"
+
+[target.'cfg(shuttle)'.dependencies]
+shuttle = "0.9.1"
+
+[lints]
+workspace = true

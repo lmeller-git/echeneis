@@ -72,6 +72,42 @@ dependencies = [
 
 [[package]]
 name = "echeneis"
+version = "0.1.0"
+dependencies = [
+ "echeneis-core",
+ "echeneis-emit",
+ "echeneis-rt",
+ "echeneis-schedule",
+ "loom",
+ "shuttle",
+]
+
+[[package]]
+name = "echeneis-core"
+version = "0.1.0"
+dependencies = [
+ "corosensei",
+]
+
+[[package]]
+name = "echeneis-emit"
+version = "0.1.0"
+
+[[package]]
+name = "echeneis-rt"
+version = "0.1.0"
+dependencies = [
+ "corosensei",
+ "echeneis-core",
+ "echeneis-schedule",
+]
+
+[[package]]
+name = "echeneis-schedule"
+version = "0.1.0"
+
+[[package]]
+name = "echeneis_"
 version = "0.1.3"
 dependencies = [
  "corosensei",
