@@ -45,6 +45,7 @@
 //!         },
 //!         |(b, _)| {
 //!             while ! b.load(Ordering::Acquire) {}
+//!             std::ops::ControlFlow::Continue::<()>(())
 //!         },
 //!     );
 //!   }

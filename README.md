@@ -53,6 +53,7 @@ Next, create a test file and add a test:
         },
         |(b, _)| {
             while ! b.load(Ordering::Acquire) {}
+            std::ops::ControlFlow::Continue::<()>(())
         },
     );
   }
