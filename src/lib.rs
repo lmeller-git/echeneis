@@ -16,7 +16,7 @@
 //!
 //! ## Quick Start
 //!
-//! Using `echeneis::check_pairwise`, you can orchestrate an initial state, a preemptible worker thread, and a checking thread to ensure that the checker can always make progress regardless of when the worker is interrupted.
+//! Using [`check_pairwise`], you can orchestrate an initial state, a preemptible worker thread, and a checking thread to ensure that the checker can always make progress regardless of when the worker is interrupted.
 //!
 //! First add echeneis to your dependencies:
 //!
@@ -79,7 +79,7 @@
 //!
 //! ## Limitations
 //!
-//! Echeneis currently only supports `check_pairwise`. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
+//! Echeneis currently only supports [`check_pairwise`]. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
 //!
 //! ## Feature Flags
 //!

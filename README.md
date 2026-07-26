@@ -24,7 +24,7 @@ Focusing on pairwise blocking interactions allows fast and simple checking with 
 
 ### Quick Start
 
-Using `echeneis::check_pairwise`, you can orchestrate an initial state, a preemptible worker thread, and a checking thread to ensure that the checker can always make progress regardless of when the worker is interrupted.
+Using [`check_pairwise`](https://docs.rs/echeneis/latest/echeneis/fn.check_pairwise.html), you can orchestrate an initial state, a preemptible worker thread, and a checking thread to ensure that the checker can always make progress regardless of when the worker is interrupted.
 
 First add echeneis to your dependencies:
 
@@ -87,7 +87,7 @@ Then, elsewhere:
 
 ### Limitations
 
-Echeneis currently only supports `check_pairwise`. In other words, blocks depending on n-way scheduling decisions can currently not be detected.
+Echeneis currently only supports [`check_pairwise`](https://docs.rs/echeneis/latest/echeneis/fn.check_pairwise.html). In other words, blocks depending on n-way scheduling decisions can currently not be detected.
 
 ### Feature Flags
 
